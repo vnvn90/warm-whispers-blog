@@ -25,17 +25,6 @@ export const usePosts = () => {
       setLoading(true);
       setError(null);
       
-      // Add timeout to prevent infinite loading
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Request timeout')), 10000)
-      );
-      
-      const fetchPromise = supabase
-        .from("posts")
-        .select("*")
-        .order("created_at", { ascending: false });
-      
-      const { data, error } = await Promise.race([fetchPromise, timeoutPromise]) as any;
       const { data, error } = await supabase
         .from("posts")
         .select("*")
@@ -45,18 +34,13 @@ export const usePosts = () => {
 
       setPosts(data || []);
     } catch (err) {
-      let errorMessage = "Failed to fetch posts";
-      if (err instanceof Error) {
-        if (err.message.includes('timeout')) {
-          errorMessage = "Connection timeout. Please check your internet connection.";
-        } else if (err.message.includes('fetch')) {
-          errorMessage = "Unable to connect to the server. Please try again later.";
-        } else {
-          errorMessage = err.message;
-        }
-      }
+      const errorMessage = err instanceof Error ? err.message : "Failed to fetch posts";
       setError(errorMessage);
-      console.error('Fetch posts error:', err);
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -71,17 +55,6 @@ export const usePosts = () => {
     cover_image_url?: string;
   }) => {
     try {
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Request timeout')), 10000)
-      );
-      
-      const createPromise = supabase
-        .from("posts")
-        .insert([postData])
-        .select()
-        .single();
-      
-      const { data, error } = await Promise.race([createPromise, timeoutPromise]) as any;
       const { data, error } = await supabase
         .from("posts")
         .insert([postData])
@@ -98,14 +71,7 @@ export const usePosts = () => {
 
       return data;
     } catch (err) {
-      let errorMessage = "Failed to create post";
-      if (err instanceof Error) {
-        if (err.message.includes('timeout')) {
-          errorMessage = "Connection timeout. Please try again.";
-        } else {
-          errorMessage = err.message;
-        }
-      }
+      const errorMessage = err instanceof Error ? err.message : "Failed to create post";
       toast({
         title: "Error",
         description: errorMessage,
@@ -117,18 +83,6 @@ export const usePosts = () => {
 
   const updatePost = async (id: string, updates: Partial<Post>) => {
     try {
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Request timeout')), 10000)
-      );
-      
-      const updatePromise = supabase
-        .from("posts")
-        .update(updates)
-        .eq("id", id)
-        .select()
-        .single();
-      
-      const { data, error } = await Promise.race([updatePromise, timeoutPromise]) as any;
       const { data, error } = await supabase
         .from("posts")
         .update(updates)
@@ -149,14 +103,7 @@ export const usePosts = () => {
 
       return data;
     } catch (err) {
-      let errorMessage = "Failed to update post";
-      if (err instanceof Error) {
-        if (err.message.includes('timeout')) {
-          errorMessage = "Connection timeout. Please try again.";
-        } else {
-          errorMessage = err.message;
-        }
-      }
+      const errorMessage = err instanceof Error ? err.message : "Failed to update post";
       toast({
         title: "Error",
         description: errorMessage,
@@ -168,16 +115,6 @@ export const usePosts = () => {
 
   const deletePost = async (id: string) => {
     try {
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Request timeout')), 10000)
-      );
-      
-      const deletePromise = supabase
-        .from("posts")
-        .delete()
-        .eq("id", id);
-      
-      const { error } = await Promise.race([deletePromise, timeoutPromise]) as any;
       const { error } = await supabase
         .from("posts")
         .delete()
@@ -191,14 +128,7 @@ export const usePosts = () => {
         description: "Post deleted successfully!",
       });
     } catch (err) {
-      let errorMessage = "Failed to delete post";
-      if (err instanceof Error) {
-        if (err.message.includes('timeout')) {
-          errorMessage = "Connection timeout. Please try again.";
-        } else {
-          errorMessage = err.message;
-        }
-      }
+      const errorMessage = err instanceof Error ? err.message : "Failed to delete post";
       toast({
         title: "Error",
         description: errorMessage,
@@ -210,23 +140,8 @@ export const usePosts = () => {
 
   const getPostById = async (id: string) => {
     try {
+      setLoading(true);
       setError(null);
-      
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Request timeout')), 10000)
-      );
-      
-      const fetchPromise = supabase
-        .from("posts")
-        .select("*")
-        .eq("id", id)
-        .single();
-      
-      const { data, error } = await Promise.race([fetchPromise, timeoutPromise]) as any;
-      // Check if we're online
-      if (!navigator.onLine) {
-        throw new Error("No internet connection. Please check your network and try again.");
-      }
       
       const { data, error } = await supabase
         .from("posts")
@@ -237,30 +152,16 @@ export const usePosts = () => {
       if (error) throw error;
       return data;
     } catch (err) {
-      let errorMessage = "Failed to fetch post";
-      if (err instanceof Error) {
-        if (err.message.includes('timeout')) {
-          errorMessage = "Connection timeout. Please check your internet connection.";
-        } else if (err.message.includes('fetch')) {
-          errorMessage = "Unable to connect to the server. Please try again later.";
-        } else {
-          errorMessage = err.message;
-        }
-      }
-      
-      if (err instanceof Error) {
-        if (err.message.includes("Failed to fetch")) {
-          errorMessage = "Unable to connect to the server. Please check your internet connection and try again.";
-        } else if (err.message.includes("No internet connection")) {
-          errorMessage = err.message;
-        } else {
-          errorMessage = err.message;
-        }
-      }
-      
+      const errorMessage = err instanceof Error ? err.message : "Failed to fetch post";
       setError(errorMessage);
-      console.error('Get post by ID error:', err);
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
       throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -273,17 +174,6 @@ export const usePosts = () => {
         return;
       }
 
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Request timeout')), 10000)
-      );
-      
-      const searchPromise = supabase
-        .from("posts")
-        .select("*")
-        .or(`title.ilike.%${query}%,content.ilike.%${query}%,tags.cs.{${query}}`)
-        .order("created_at", { ascending: false });
-      
-      const { data, error } = await Promise.race([searchPromise, timeoutPromise]) as any;
       const { data, error } = await supabase
         .from("posts")
         .select("*")
@@ -294,16 +184,13 @@ export const usePosts = () => {
 
       setPosts(data || []);
     } catch (err) {
-      let errorMessage = "Failed to search posts";
-      if (err instanceof Error) {
-        if (err.message.includes('timeout')) {
-          errorMessage = "Search timeout. Please try again.";
-        } else {
-          errorMessage = err.message;
-        }
-      }
+      const errorMessage = err instanceof Error ? err.message : "Failed to search posts";
       setError(errorMessage);
-      console.error('Search posts error:', err);
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }

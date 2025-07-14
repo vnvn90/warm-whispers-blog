@@ -10,54 +10,8 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: typeof window !== 'undefined' ? localStorage : undefined,
+    storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
-    detectSessionInUrl: false,
-  },
-  global: {
-    fetch: async (url, options = {}) => {
-      const maxRetries = 3;
-      let lastError;
-      
-      for (let i = 0; i < maxRetries; i++) {
-        try {
-          const response = await fetch(url, {
-            ...options,
-            headers: {
-              ...options.headers,
-            },
-          });
-          
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-          }
-          
-          return response;
-        } catch (error) {
-          lastError = error;
-          console.warn(`Fetch attempt ${i + 1} failed:`, error);
-          
-          if (i < maxRetries - 1) {
-            // Wait before retrying (exponential backoff)
-            await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
-          }
-        }
-      }
-      
-      throw new Error(`Failed to fetch after ${maxRetries} attempts: ${lastError?.message || 'Unknown error'}`);
-    }
   }
 });
-
-// Test connection function
-export const testConnection = async () => {
-  try {
-    const { data, error } = await supabase.from('posts').select('count').limit(1);
-    if (error) throw error;
-    return true;
-  } catch (error) {
-    console.error('Supabase connection test failed:', error);
-    return false;
-  }
-};

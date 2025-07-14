@@ -61,27 +61,7 @@ const PostDetail = () => {
         const postData = await getPostById(id);
         setPost(postData);
       } catch (error) {
-        let errorMessage = "Failed to load post";
-        if (error instanceof Error) {
-          if (error.message.includes('timeout')) {
-            errorMessage = "Connection timeout. Please check your internet connection and try again.";
-          } else if (error.message.includes('fetch')) {
-            errorMessage = "Unable to connect to the server. Please try refreshing the page.";
-          } else {
-            errorMessage = error.message;
-          }
-        }
-        
-        if (error instanceof Error) {
-          if (error.message.includes("Unable to connect")) {
-            errorMessage = "Unable to connect to the server. Please check your internet connection and try again.";
-          } else if (error.message.includes("No internet connection")) {
-            errorMessage = "No internet connection. Please check your network and try again.";
-          } else {
-            errorMessage = error.message;
-          }
-        }
-        
+        const errorMessage = error instanceof Error ? error.message : "Failed to load post";
         setError(errorMessage);
         console.error("Error fetching post:", error);
       } finally {
@@ -124,17 +104,10 @@ const PostDetail = () => {
   if (isLoading) {
     return (
       <Layout>
-        <div className="flex flex-col items-center justify-center min-h-[400px]">
+        <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
             <p className="text-muted-foreground">Loading story...</p>
-            <p className="text-sm text-muted-foreground mt-2">This may take a few moments</p>
-          </div>
-          <div className="mt-8">
-            <Link to="/" className="btn-accent">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Home
-            </Link>
           </div>
         </div>
       </Layout>
@@ -146,23 +119,15 @@ const PostDetail = () => {
       <Layout>
         <div className="text-center py-16">
           <h1 className="text-2xl font-serif font-bold text-foreground mb-4">
-            {error ? "Connection Error" : "Story Not Found"}
+            {error ? "Error Loading Story" : "Story Not Found"}
           </h1>
           <p className="text-muted-foreground mb-8">
             {error || "The story you're looking for doesn't exist or has been removed."}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button 
-              onClick={() => window.location.reload()} 
-              className="btn-warm"
-            >
-              Try Again
-            </button>
-            <Link to="/" className="btn-accent">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Home
-            </Link>
-          </div>
+          <Link to="/" className="btn-warm">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Home
+          </Link>
         </div>
       </Layout>
     );
