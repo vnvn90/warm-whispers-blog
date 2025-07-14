@@ -143,6 +143,11 @@ export const usePosts = () => {
       setLoading(true);
       setError(null);
       
+      // Check if we're online
+      if (!navigator.onLine) {
+        throw new Error("No internet connection. Please check your network and try again.");
+      }
+      
       const { data, error } = await supabase
         .from("posts")
         .select("*")
@@ -152,7 +157,18 @@ export const usePosts = () => {
       if (error) throw error;
       return data;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to fetch post";
+      let errorMessage = "Failed to fetch post";
+      
+      if (err instanceof Error) {
+        if (err.message.includes("Failed to fetch")) {
+          errorMessage = "Unable to connect to the server. Please check your internet connection and try again.";
+        } else if (err.message.includes("No internet connection")) {
+          errorMessage = err.message;
+        } else {
+          errorMessage = err.message;
+        }
+      }
+      
       setError(errorMessage);
       toast({
         title: "Error",

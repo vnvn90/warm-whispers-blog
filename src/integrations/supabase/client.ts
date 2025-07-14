@@ -13,5 +13,38 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
+  },
+  global: {
+    fetch: async (url, options = {}) => {
+      const maxRetries = 3;
+      let lastError;
+      
+      for (let i = 0; i < maxRetries; i++) {
+        try {
+          const response = await fetch(url, {
+            ...options,
+            headers: {
+              ...options.headers,
+            },
+          });
+          
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          
+          return response;
+        } catch (error) {
+          lastError = error;
+          console.warn(`Fetch attempt ${i + 1} failed:`, error);
+          
+          if (i < maxRetries - 1) {
+            // Wait before retrying (exponential backoff)
+            await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+          }
+        }
+      }
+      
+      throw new Error(`Failed to fetch after ${maxRetries} attempts: ${lastError?.message || 'Unknown error'}`);
+    }
   }
 });

@@ -61,7 +61,18 @@ const PostDetail = () => {
         const postData = await getPostById(id);
         setPost(postData);
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Failed to load post";
+        let errorMessage = "Failed to load post";
+        
+        if (error instanceof Error) {
+          if (error.message.includes("Unable to connect")) {
+            errorMessage = "Unable to connect to the server. Please check your internet connection and try again.";
+          } else if (error.message.includes("No internet connection")) {
+            errorMessage = "No internet connection. Please check your network and try again.";
+          } else {
+            errorMessage = error.message;
+          }
+        }
+        
         setError(errorMessage);
         console.error("Error fetching post:", error);
       } finally {
