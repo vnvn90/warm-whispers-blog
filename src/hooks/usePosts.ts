@@ -140,6 +140,9 @@ export const usePosts = () => {
 
   const getPostById = async (id: string) => {
     try {
+      setLoading(true);
+      setError(null);
+      
       const { data, error } = await supabase
         .from("posts")
         .select("*")
@@ -150,12 +153,15 @@ export const usePosts = () => {
       return data;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Failed to fetch post";
+      setError(errorMessage);
       toast({
         title: "Error",
         description: errorMessage,
         variant: "destructive",
       });
       throw err;
+    } finally {
+      setLoading(false);
     }
   };
 

@@ -110,7 +110,7 @@ const AuthorDashboard = () => {
               <p className="text-sm text-muted-foreground mb-4">
                 Don't have any posts yet?
               </p>
-              <Link to="/create" className="btn-accent">
+              <Link to="/create" className="btn-accent inline-flex items-center">
                 <Plus className="h-4 w-4 mr-2" />
                 Write Your First Story
               </Link>
@@ -134,12 +134,12 @@ const AuthorDashboard = () => {
               Welcome back, <span className="font-medium text-foreground">{authorName}</span>
             </p>
           </div>
-          <div className="flex gap-3 mt-4 sm:mt-0">
-            <Link to="/create" className="btn-warm">
+          <div className="flex flex-col sm:flex-row gap-3 mt-4 sm:mt-0 w-full sm:w-auto">
+            <Link to="/create" className="btn-warm whitespace-nowrap">
               <Plus className="h-4 w-4 mr-2" />
               New Story
             </Link>
-            <button onClick={handleLogout} className="btn-accent">
+            <button onClick={handleLogout} className="btn-accent whitespace-nowrap">
               Switch Author
             </button>
           </div>
@@ -266,7 +266,7 @@ const AuthorDashboard = () => {
             <p className="text-muted-foreground mb-8 max-w-md mx-auto">
               You haven't published any stories yet. Start sharing your thoughts and experiences with the world!
             </p>
-            <Link to="/create" className="btn-warm">
+            <Link to="/create" className="btn-warm inline-flex items-center">
               <Plus className="h-4 w-4 mr-2" />
               Write Your First Story
             </Link>

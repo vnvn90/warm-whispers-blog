@@ -143,11 +143,11 @@ All colors MUST be HSL.
 
 @layer components {
   .btn-warm {
-    @apply bg-primary text-primary-foreground px-6 py-3 rounded-lg font-medium transition-[var(--transition-smooth)] hover:bg-primary/90 shadow-[var(--shadow-card)];
+    @apply bg-primary text-primary-foreground px-6 py-3 rounded-lg font-medium transition-[var(--transition-smooth)] hover:bg-primary/90 shadow-[var(--shadow-card)] inline-flex items-center justify-center;
   }
 
   .btn-accent {
-    @apply bg-accent text-accent-foreground px-6 py-3 rounded-lg font-medium transition-[var(--transition-smooth)] hover:bg-accent/90 shadow-[var(--shadow-card)];
+    @apply bg-accent text-accent-foreground px-6 py-3 rounded-lg font-medium transition-[var(--transition-smooth)] hover:bg-accent/90 shadow-[var(--shadow-card)] inline-flex items-center justify-center;
   }
 
   .input-warm {

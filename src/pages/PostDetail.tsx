@@ -20,7 +20,8 @@ const PostDetail = () => {
   const { getPostById } = usePosts();
   const { toast } = useToast();
   const [post, setPost] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Map cover images based on tags
   const getCoverImage = (tags: string[] | null) => {
@@ -55,13 +56,16 @@ const PostDetail = () => {
       if (!id) return;
       
       try {
-        setLoading(true);
+        setIsLoading(true);
+        setError(null);
         const postData = await getPostById(id);
         setPost(postData);
       } catch (error) {
-        navigate("/");
+        const errorMessage = error instanceof Error ? error.message : "Failed to load post";
+        setError(errorMessage);
+        console.error("Error fetching post:", error);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -97,7 +101,7 @@ const PostDetail = () => {
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Layout>
         <div className="flex items-center justify-center min-h-[400px]">
@@ -110,15 +114,15 @@ const PostDetail = () => {
     );
   }
 
-  if (!post) {
+  if (error || !post) {
     return (
       <Layout>
         <div className="text-center py-16">
           <h1 className="text-2xl font-serif font-bold text-foreground mb-4">
-            Story Not Found
+            {error ? "Error Loading Story" : "Story Not Found"}
           </h1>
           <p className="text-muted-foreground mb-8">
-            The story you're looking for doesn't exist or has been removed.
+            {error || "The story you're looking for doesn't exist or has been removed."}
           </p>
           <Link to="/" className="btn-warm">
             <ArrowLeft className="h-4 w-4 mr-2" />
