@@ -10,9 +10,10 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
-    storage: localStorage,
+    storage: typeof window !== 'undefined' ? localStorage : undefined,
     persistSession: true,
     autoRefreshToken: true,
+    detectSessionInUrl: false,
   },
   global: {
     fetch: async (url, options = {}) => {
@@ -48,3 +49,15 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     }
   }
 });
+
+// Test connection function
+export const testConnection = async () => {
+  try {
+    const { data, error } = await supabase.from('posts').select('count').limit(1);
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error('Supabase connection test failed:', error);
+    return false;
+  }
+};
